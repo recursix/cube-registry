@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MiniWob++ — CUBE Registry</title>
+  <meta name="description" content="MiniWob++ (Mini World of Bits++) is a collection of 125 browser-based web-interaction tasks ranging from simple button clicks to multi-step form filling. The CUBE wrapper starts a local HTTP server th…" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .copy-btn { cursor: pointer; }
+    .copy-btn:active { transform: scale(0.97); }
+    .feature-pill { display: inline-flex; align-items: center; gap: 4px; }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-900 min-h-screen">
+
+<!-- ── Header ────────────────────────────────────────────────────────────── -->
+<header class="bg-white border-b border-gray-200 sticky top-0 z-30 shadow-sm">
+  <div class="max-w-4xl mx-auto px-4 py-3 flex items-center gap-4">
+    <a href="../" class="text-indigo-700 font-bold text-lg hover:text-indigo-900 flex items-center gap-1">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+      </svg>
+      CUBE Registry
+    </a>
+    <span class="text-gray-300">/</span>
+    <span class="text-gray-700 font-medium">MiniWob++</span>
+
+    <!-- Status badge -->
+    <span class="ml-auto inline-flex items-center text-xs font-medium px-2.5 py-1 rounded-full bg-green-100 text-green-800">
+      Active
+    </span>
+  </div>
+</header>
+
+<main class="max-w-4xl mx-auto px-4 py-8 space-y-8">
+
+  <!-- ── Title section ──────────────────────────────────────────────────── -->
+  <section>
+    <div class="flex items-start gap-4 flex-wrap">
+      <div class="flex-1 min-w-0">
+        <h1 class="text-3xl font-extrabold text-gray-900">MiniWob++</h1>
+        <p class="text-sm text-gray-400 mt-1 font-mono">miniwob · v1.0.0</p>
+      </div>
+      
+      <a href="https://arxiv.org/abs/1802.08802" target="_blank" rel="noopener"
+         class="flex-shrink-0 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded-lg font-medium">
+        📄 Paper
+      </a>
+      
+      
+    </div>
+
+    <!-- Tags -->
+    
+    <div class="flex flex-wrap gap-2 mt-3">
+      
+      <span class="text-sm px-2.5 py-0.5 rounded-full font-medium bg-blue-100 text-blue-800">web</span>
+      
+      <span class="text-sm px-2.5 py-0.5 rounded-full font-medium bg-green-100 text-green-800">gui</span>
+      
+    </div>
+    
+
+    <!-- Description -->
+    <p class="mt-4 text-gray-700 leading-relaxed">MiniWob++ (Mini World of Bits++) is a collection of 125 browser-based web-interaction tasks ranging from simple button clicks to multi-step form filling. The CUBE wrapper starts a local HTTP server that serves the MiniWoB task pages and exposes them via a browser tool; each task runs independently with no shared state.
+</p>
+
+    <!-- Authors -->
+    
+    
+    <p class="mt-3 text-sm text-gray-500">
+      By:
+      
+        <a href="https://github.com/recursix" class="text-gray-700 hover:text-indigo-700" target="_blank" rel="noopener">
+          @recursix
+        </a>
+      
+    </p>
+    
+  </section>
+
+  <!-- ── Install ────────────────────────────────────────────────────────── -->
+  <section class="bg-gray-900 rounded-xl p-5">
+    <p class="text-gray-400 text-sm mb-2 font-medium uppercase tracking-wider">Install</p>
+    <div class="flex items-center gap-3">
+      <code id="pip-cmd" class="text-green-400 font-mono text-base flex-1">pip install miniwob-cube</code>
+      <button
+        class="copy-btn bg-gray-700 hover:bg-gray-600 text-gray-200 text-xs px-3 py-1.5 rounded-lg font-medium transition-colors"
+        onclick="copyPipInstall()"
+        id="copy-btn"
+      >Copy</button>
+    </div>
+    <p class="text-gray-500 text-xs mt-2">
+      Version: 1.0.0 ·
+      <a href="https://pypi.org/project/miniwob-cube/1.0.0/" class="underline hover:text-gray-300" target="_blank" rel="noopener">PyPI page</a>
+    </p>
+  </section>
+
+  <!-- ── Quick stats ────────────────────────────────────────────────────── -->
+  <section class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+    <div class="bg-white rounded-lg border border-gray-200 p-4 text-center">
+      <div class="text-2xl font-bold text-indigo-700">
+        
+      </div>
+      <div class="text-xs text-gray-500 mt-1">Tasks</div>
+    </div>
+    <div class="bg-white rounded-lg border border-gray-200 p-4 text-center">
+      <div class="text-2xl font-bold text-indigo-700">
+        aws
+      </div>
+      <div class="text-xs text-gray-500 mt-1">Infra</div>
+    </div>
+    <div class="bg-white rounded-lg border border-gray-200 p-4 text-center">
+      <div class="text-2xl font-bold text-red-500">
+        No
+      </div>
+      <div class="text-xs text-gray-500 mt-1">Debug Task</div>
+    </div>
+    <div class="bg-white rounded-lg border border-gray-200 p-4 text-center">
+      <div class="text-2xl font-bold text-gray-400">
+        No
+      </div>
+      <div class="text-xs text-gray-500 mt-1">Debug Agent</div>
+    </div>
+  </section>
+
+  <!-- ── Feature flags ─────────────────────────────────────────────────── -->
+  
+  
+
+  <!-- ── Resources ─────────────────────────────────────────────────────── -->
+  
+  
+
+  <!-- ── Action space ───────────────────────────────────────────────────── -->
+  
+  
+
+  <!-- ── Legal ─────────────────────────────────────────────────────────── -->
+  <section class="bg-white rounded-xl border border-gray-200 p-5">
+    <h2 class="text-lg font-bold mb-4">Legal</h2>
+    <div class="space-y-3 text-sm">
+      <!-- Wrapper license -->
+      <div class="flex gap-3 items-start">
+        <span class="text-gray-500 w-40 flex-shrink-0">Wrapper license</span>
+        <span class="font-mono font-medium text-gray-800">MIT</span>
+      </div>
+
+      <!-- Benchmark license -->
+      
+      <div class="flex gap-3 items-start">
+        <span class="text-gray-500 w-40 flex-shrink-0">Benchmark license</span>
+        <div>
+          <span class="font-mono font-medium text-gray-800">MIT</span>
+          
+          <span class="ml-2 text-xs bg-yellow-50 text-yellow-700 px-2 py-0.5 rounded-full font-medium border border-yellow-200">Self-reported — verify before commercial use</span>
+          
+          
+          <a href="https://github.com/Farama-Foundation/miniwob-plusplus/blob/master/LICENSE" class="ml-2 text-indigo-600 hover:underline text-xs" target="_blank" rel="noopener">Source →</a>
+          
+        </div>
+      </div>
+      
+
+      <!-- Notices -->
+      
+      
+    </div>
+
+    <div class="mt-4 text-xs text-gray-400 border-t border-gray-100 pt-3">
+      License information is self-reported by the cube developer and has not been verified by the AI Alliance.
+      Always consult the source URL and original benchmark authors for authoritative terms.
+    </div>
+  </section>
+
+  <!-- ── Stress results ────────────────────────────────────────────────── -->
+  
+  <section class="bg-gray-50 rounded-xl border border-dashed border-gray-300 p-5 text-center text-gray-400 text-sm">
+    Slow check not yet run. Stress test results will appear here after the async compliance check completes.
+  </section>
+  
+
+  <!-- ── Parallelization info ──────────────────────────────────────────── -->
+  
+  <section class="bg-white rounded-xl border border-gray-200 p-5">
+    <h2 class="text-lg font-bold mb-3">Parallelization</h2>
+    <div class="flex gap-8 text-sm">
+      
+      <div>
+        <span class="text-gray-500 text-xs uppercase tracking-wider">Mode</span>
+        <p class="font-mono font-medium text-gray-800 mt-1">task-parallel</p>
+      </div>
+      
+      
+    </div>
+  </section>
+  
+
+</main>
+
+<!-- ── Footer ────────────────────────────────────────────────────────────── -->
+<footer class="border-t border-gray-200 bg-white mt-8 py-6 text-center text-xs text-gray-400">
+  <p>
+    CUBE Registry — <a href="https://github.com/The-AI-Alliance/cube-registry" class="underline">GitHub</a> ·
+    <a href="../" class="underline">All benchmarks</a> ·
+    Generated 2026-03-30 22:04 UTC
+  </p>
+</footer>
+
+<script>
+function copyPipInstall() {
+  const cmd = document.getElementById('pip-cmd').textContent;
+  navigator.clipboard.writeText(cmd).then(() => {
+    const btn = document.getElementById('copy-btn');
+    btn.textContent = 'Copied!';
+    btn.classList.add('bg-green-700');
+    setTimeout(() => {
+      btn.textContent = 'Copy';
+      btn.classList.remove('bg-green-700');
+    }, 2000);
+  });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,31 @@
+id: miniwob
+name: MiniWob++
+version: "1.0.0"
+description: >
+  MiniWob++ (Mini World of Bits++) is a collection of 125 browser-based
+  web-interaction tasks ranging from simple button clicks to multi-step form
+  filling. The CUBE wrapper starts a local HTTP server that serves the MiniWoB
+  task pages and exposes them via a browser tool; each task runs independently
+  with no shared state.
+package: miniwob-cube
+
+# Note: not yet published on PyPI. Install from source:
+#   pip install git+https://github.com/The-AI-Alliance/cube-harness#subdirectory=cubes/miniwob
+
+authors:
+  - github: recursix
+
+legal:
+  wrapper_license: MIT
+  benchmark_license:
+    reported: MIT
+    source_url: "https://github.com/Farama-Foundation/miniwob-plusplus/blob/master/LICENSE"
+
+paper: "https://arxiv.org/abs/1802.08802"
+tags: [web, gui]
+
+parallelization_mode: task-parallel
+
+status: active
+has_debug_task: false
+has_debug_agent: false

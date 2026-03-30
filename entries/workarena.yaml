@@ -1,0 +1,35 @@
+id: workarena
+name: WorkArena
+version: "1.0.0"
+description: >
+  WorkArena evaluates agents on enterprise service-desk workflows inside a
+  real ServiceNow Personal Developer Instance. Tasks are organized into three
+  levels: L1 atomic tasks (~33 unique tasks × multiple seeds), L2
+  compositional tasks, and L3 extended tasks with company protocols. Requires
+  a free ServiceNow PDI and browser-automation tooling.
+package: workarena-cube
+
+# Note: not yet published on PyPI. Install from source:
+#   pip install git+https://github.com/The-AI-Alliance/cube-harness#subdirectory=cubes/workarena
+
+authors:
+  - github: recursix
+
+legal:
+  wrapper_license: MIT
+  benchmark_license:
+    reported: Apache-2.0
+    source_url: "https://github.com/ServiceNow/WorkArena/blob/main/LICENSE"
+  notices:
+    - type: software_registration
+      description: "Requires a free ServiceNow Personal Developer Instance (PDI). Register at developer.servicenow.com"
+      url: "https://developer.servicenow.com"
+
+paper: "https://arxiv.org/abs/2402.05181"
+tags: [web, gui]
+
+parallelization_mode: task-parallel
+
+status: active
+has_debug_task: false
+has_debug_agent: false

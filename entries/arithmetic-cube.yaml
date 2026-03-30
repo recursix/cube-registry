@@ -1,0 +1,27 @@
+id: arithmetic-cube
+name: Arithmetic Cube
+version: "0.1.0"
+description: >
+  A minimal arithmetic benchmark that asks agents to evaluate simple integer
+  expressions (addition, subtraction, multiplication) and submit the correct
+  answer. Designed as a self-contained example with no external services or
+  VM requirements — pure Python, runs anywhere.
+package: arithmetic-cube
+
+# Note: not yet published on PyPI. Install from source:
+#   pip install git+https://github.com/The-AI-Alliance/cube-harness#subdirectory=cubes/arithmetic-cube
+
+authors:
+  - github: recursix
+
+legal:
+  wrapper_license: MIT
+
+tags: [math]
+
+max_concurrent_tasks: 64
+parallelization_mode: task-parallel
+
+status: active
+has_debug_task: false
+has_debug_agent: false

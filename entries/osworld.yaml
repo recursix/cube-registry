@@ -1,0 +1,43 @@
+id: osworld
+name: OSWorld
+version: "0.1.0"
+description: >
+  OSWorld benchmarks multimodal agents on open-ended computer tasks executed
+  inside a real Ubuntu 22.04 desktop environment. Tasks span 369 scenarios
+  across applications such as Chrome, LibreOffice, Thunderbird, and the OS
+  shell. Each task launches a fresh VM from a qcow2 image, restores a
+  snapshot, runs setup scripts, and evaluates the final desktop state.
+package: osworld-cube
+
+# Note: not yet published on PyPI. Install from source:
+#   pip install git+https://github.com/The-AI-Alliance/cube-harness#subdirectory=cubes/osworld-cube
+
+authors:
+  - github: recursix
+
+legal:
+  wrapper_license: MIT
+  benchmark_license:
+    reported: CC-BY-4.0
+    source_url: "https://github.com/xlangai/OSWorld/blob/main/LICENSE"
+  notices:
+    - type: software_registration
+      description: "Ubuntu desktop with pre-installed commercial applications including LibreOffice, Thunderbird, and others"
+
+paper: "https://arxiv.org/abs/2404.07972"
+tags: [os, gui, desktop, multimodal]
+
+supported_infra: [aws]
+max_concurrent_tasks: 1
+parallelization_mode: benchmark-parallel
+
+resources:
+  - type: VMResourceConfig
+    name: osworld-ubuntu-vm
+    source_url: "https://huggingface.co/datasets/xlangai/ubuntu_osworld/resolve/main/Ubuntu.qcow2.zip"
+    image_format: qcow2
+    scope: task
+
+status: active
+has_debug_task: false
+has_debug_agent: false
