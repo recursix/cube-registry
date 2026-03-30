@@ -12,7 +12,8 @@ package: arithmetic-cube
 #   pip install git+https://github.com/The-AI-Alliance/cube-harness#subdirectory=cubes/arithmetic-cube
 
 authors:
-  - github: recursix
+  - github: NicolasAG
+    name: Nicolas Gontier
 
 legal:
   wrapper_license: MIT
@@ -23,5 +24,5 @@ max_concurrent_tasks: 64
 parallelization_mode: task-parallel
 
 status: active
-has_debug_task: false
-has_debug_agent: false
+has_debug_task: true
+has_debug_agent: true

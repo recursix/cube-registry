@@ -13,7 +13,12 @@ package: miniwob-cube
 #   pip install git+https://github.com/The-AI-Alliance/cube-harness#subdirectory=cubes/miniwob
 
 authors:
-  - github: recursix
+  - github: younik
+    name: Omar Younis
+  - github: amanjaiswal73892
+    name: Aman Jaiswal
+  - github: NicolasAG
+    name: Nicolas Gontier
 
 legal:
   wrapper_license: MIT
@@ -27,5 +32,5 @@ tags: [web, gui]
 parallelization_mode: task-parallel
 
 status: active
-has_debug_task: false
-has_debug_agent: false
+has_debug_task: true
+has_debug_agent: true

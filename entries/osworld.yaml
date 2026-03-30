@@ -13,7 +13,12 @@ package: osworld-cube
 #   pip install git+https://github.com/The-AI-Alliance/cube-harness#subdirectory=cubes/osworld-cube
 
 authors:
+  - github: kushasareen
+    name: Kusha Sareen
+  - github: amanjaiswal73892
+    name: Aman Jaiswal
   - github: recursix
+    name: Alexandre Lacoste
 
 legal:
   wrapper_license: MIT
