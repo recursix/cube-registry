@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ entry.name }} — CUBE Registry</title>
+  <meta name="description" content="{{ entry.description_short }}" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .copy-btn { cursor: pointer; }
+    .copy-btn:active { transform: scale(0.97); }
+    .feature-pill { display: inline-flex; align-items: center; gap: 4px; }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-900 min-h-screen">
+
+<!-- ── Header ────────────────────────────────────────────────────────────── -->
+<header class="bg-white border-b border-gray-200 sticky top-0 z-30 shadow-sm">
+  <div class="max-w-4xl mx-auto px-4 py-3 flex items-center gap-4">
+    <a href="../" class="text-indigo-700 font-bold text-lg hover:text-indigo-900 flex items-center gap-1">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+      </svg>
+      CUBE Registry
+    </a>
+    <span class="text-gray-300">/</span>
+    <span class="text-gray-700 font-medium">{{ entry.name }}</span>
+
+    <!-- Status badge -->
+    <span class="ml-auto inline-flex items-center text-xs font-medium px-2.5 py-1 rounded-full {{ entry.status_badge.bg }} {{ entry.status_badge.text }}">
+      {{ entry.status_badge.label }}
+    </span>
+  </div>
+</header>
+
+<main class="max-w-4xl mx-auto px-4 py-8 space-y-8">
+
+  <!-- ── Title section ──────────────────────────────────────────────────── -->
+  <section>
+    <div class="flex items-start gap-4 flex-wrap">
+      <div class="flex-1 min-w-0">
+        <h1 class="text-3xl font-extrabold text-gray-900">{{ entry.name }}</h1>
+        <p class="text-sm text-gray-400 mt-1 font-mono">{{ entry.id }} · v{{ entry.version }}</p>
+      </div>
+      {% if entry.paper %}
+      <a href="{{ entry.paper }}" target="_blank" rel="noopener"
+         class="flex-shrink-0 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded-lg font-medium">
+        📄 Paper
+      </a>
+      {% endif %}
+      {% if entry.getting_started_url %}
+      <a href="{{ entry.getting_started_url }}" target="_blank" rel="noopener"
+         class="flex-shrink-0 text-sm bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-3 py-1.5 rounded-lg font-medium">
+        📖 Getting Started
+      </a>
+      {% endif %}
+    </div>
+
+    <!-- Tags -->
+    {% if entry.tag_chips %}
+    <div class="flex flex-wrap gap-2 mt-3">
+      {% for chip in entry.tag_chips %}
+      <span class="text-sm px-2.5 py-0.5 rounded-full font-medium {{ chip.cls }}">{{ chip.label }}</span>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Description -->
+    <p class="mt-4 text-gray-700 leading-relaxed">{{ entry.description }}</p>
+
+    <!-- Authors -->
+    {% set authors = entry.get('authors', []) or [] %}
+    {% if authors %}
+    <p class="mt-3 text-sm text-gray-500">
+      By:
+      {% for author in authors %}
+        <a href="https://github.com/{{ author.github }}" class="text-gray-700 hover:text-indigo-700" target="_blank" rel="noopener">
+          @{{ author.github }}{% if author.get('name') %} ({{ author.name }}){% endif %}
+        </a>{% if not loop.last %}, {% endif %}
+      {% endfor %}
+    </p>
+    {% endif %}
+  </section>
+
+  <!-- ── Install ────────────────────────────────────────────────────────── -->
+  <section class="bg-gray-900 rounded-xl p-5">
+    <p class="text-gray-400 text-sm mb-2 font-medium uppercase tracking-wider">Install</p>
+    <div class="flex items-center gap-3">
+      <code id="pip-cmd" class="text-green-400 font-mono text-base flex-1">pip install {{ entry.package }}</code>
+      <button
+        class="copy-btn bg-gray-700 hover:bg-gray-600 text-gray-200 text-xs px-3 py-1.5 rounded-lg font-medium transition-colors"
+        onclick="copyPipInstall()"
+        id="copy-btn"
+      >Copy</button>
+    </div>
+    <p class="text-gray-500 text-xs mt-2">
+      Version: {{ entry.version }} ·
+      <a href="https://pypi.org/project/{{ entry.package }}/{{ entry.version }}/" class="underline hover:text-gray-300" target="_blank" rel="noopener">PyPI page</a>
+    </p>
+  </section>
+
+  <!-- ── Quick stats ────────────────────────────────────────────────────── -->
+  <section class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+    <div class="bg-white rounded-lg border border-gray-200 p-4 text-center">
+      <div class="text-2xl font-bold text-indigo-700">
+        {% if entry.task_count is not none %}{{ entry.task_count }}{% else %}—{% endif %}
+      </div>
+      <div class="text-xs text-gray-500 mt-1">Tasks</div>
+    </div>
+    <div class="bg-white rounded-lg border border-gray-200 p-4 text-center">
+      <div class="text-2xl font-bold text-indigo-700">
+        {{ (entry.get('supported_infra') or ['aws']) | join(', ') }}
+      </div>
+      <div class="text-xs text-gray-500 mt-1">Infra</div>
+    </div>
+    <div class="bg-white rounded-lg border border-gray-200 p-4 text-center">
+      <div class="text-2xl font-bold {% if entry.has_debug_task %}text-green-600{% else %}text-red-500{% endif %}">
+        {% if entry.has_debug_task %}Yes{% else %}No{% endif %}
+      </div>
+      <div class="text-xs text-gray-500 mt-1">Debug Task</div>
+    </div>
+    <div class="bg-white rounded-lg border border-gray-200 p-4 text-center">
+      <div class="text-2xl font-bold {% if entry.has_debug_agent %}text-green-600{% else %}text-gray-400{% endif %}">
+        {% if entry.has_debug_agent %}Yes{% else %}No{% endif %}
+      </div>
+      <div class="text-xs text-gray-500 mt-1">Debug Agent</div>
+    </div>
+  </section>
+
+  <!-- ── Feature flags ─────────────────────────────────────────────────── -->
+  {% set features = entry.get('features') or {} %}
+  {% if features %}
+  <section class="bg-white rounded-xl border border-gray-200 p-5">
+    <h2 class="text-lg font-bold mb-4">Feature Flags</h2>
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      {% for key, val in features.items() %}
+      <div class="flex items-center gap-2 text-sm">
+        {% if val %}
+        <span class="w-5 h-5 rounded-full bg-green-100 text-green-700 flex items-center justify-center text-xs font-bold flex-shrink-0">✓</span>
+        <span class="font-medium text-gray-800">{{ key }}</span>
+        {% else %}
+        <span class="w-5 h-5 rounded-full bg-gray-100 text-gray-400 flex items-center justify-center text-xs flex-shrink-0">—</span>
+        <span class="text-gray-400">{{ key }}</span>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  <!-- ── Resources ─────────────────────────────────────────────────────── -->
+  {% set resources = entry.get('resources') or [] %}
+  {% if resources %}
+  <section class="bg-white rounded-xl border border-gray-200 p-5">
+    <h2 class="text-lg font-bold mb-4">Resources</h2>
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-sm">
+        <thead>
+          <tr class="border-b border-gray-200 text-left text-xs text-gray-500 uppercase tracking-wider">
+            <th class="pb-2 pr-4">Type</th>
+            <th class="pb-2 pr-4">Name</th>
+            <th class="pb-2 pr-4">Image URL</th>
+            <th class="pb-2 pr-4">Format</th>
+            <th class="pb-2 pr-4">Size</th>
+            <th class="pb-2 pr-4">RAM</th>
+            <th class="pb-2">GPU</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for res in resources %}
+          <tr class="border-b border-gray-100 last:border-0">
+            <td class="py-2 pr-4 font-mono text-xs text-purple-700">{{ res.type | default('—') }}</td>
+            <td class="py-2 pr-4 font-medium">{{ res.name | default('—') }}</td>
+            <td class="py-2 pr-4">
+              {% if res.get('image_url') %}
+              <a href="{{ res.image_url }}" class="text-indigo-600 hover:underline truncate max-w-xs block text-xs" target="_blank" rel="noopener" title="{{ res.image_url }}">
+                {{ res.image_url | truncate(50) }}
+              </a>
+              {% else %}—{% endif %}
+            </td>
+            <td class="py-2 pr-4 text-gray-500">{{ res.get('image_format', '—') }}</td>
+            <td class="py-2 pr-4 text-gray-500">
+              {% if res.get('image_size_gb') %}{{ res.image_size_gb }} GB{% else %}—{% endif %}
+            </td>
+            <td class="py-2 pr-4 text-gray-500">
+              {% if res.get('ram_gb') %}{{ res.ram_gb }} GB{% else %}—{% endif %}
+            </td>
+            <td class="py-2 text-gray-500">
+              {% if res.get('gpu') is not none %}
+              {% if res.gpu %}<span class="text-green-600">Yes</span>{% else %}No{% endif %}
+              {% else %}—{% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+  {% endif %}
+
+  <!-- ── Action space ───────────────────────────────────────────────────── -->
+  {% set action_space = entry.get('action_space') or [] %}
+  {% if action_space %}
+  <section class="bg-white rounded-xl border border-gray-200 p-5">
+    <h2 class="text-lg font-bold mb-4">Action Space</h2>
+    <div class="space-y-2">
+      {% for tool in action_space %}
+      <div class="flex gap-3 text-sm">
+        <code class="text-purple-700 font-mono bg-purple-50 px-2 py-0.5 rounded text-xs self-start mt-0.5">{{ tool.name | default('?') }}</code>
+        <span class="text-gray-600">{{ tool.get('description', '') }}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  <!-- ── Legal ─────────────────────────────────────────────────────────── -->
+  <section class="bg-white rounded-xl border border-gray-200 p-5">
+    <h2 class="text-lg font-bold mb-4">Legal</h2>
+    <div class="space-y-3 text-sm">
+      <!-- Wrapper license -->
+      <div class="flex gap-3 items-start">
+        <span class="text-gray-500 w-40 flex-shrink-0">Wrapper license</span>
+        <span class="font-mono font-medium text-gray-800">{{ entry.legal.get('wrapper_license', '—') }}</span>
+      </div>
+
+      <!-- Benchmark license -->
+      {% if entry.bench_license_reported %}
+      <div class="flex gap-3 items-start">
+        <span class="text-gray-500 w-40 flex-shrink-0">Benchmark license</span>
+        <div>
+          <span class="font-mono font-medium text-gray-800">{{ entry.bench_license_reported }}</span>
+          {% if entry.bench_license_verified %}
+          <span class="ml-2 text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full font-medium">✓ Confirmed by original authors</span>
+          {% else %}
+          <span class="ml-2 text-xs bg-yellow-50 text-yellow-700 px-2 py-0.5 rounded-full font-medium border border-yellow-200">Self-reported — verify before commercial use</span>
+          {% endif %}
+          {% if entry.bench_license_url %}
+          <a href="{{ entry.bench_license_url }}" class="ml-2 text-indigo-600 hover:underline text-xs" target="_blank" rel="noopener">Source →</a>
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Notices -->
+      {% set notices = entry.legal.get('notices') or [] %}
+      {% if notices %}
+      <div>
+        <p class="text-gray-500 mb-2">Notices</p>
+        <div class="space-y-2">
+          {% for notice in notices %}
+          <div class="bg-orange-50 border border-orange-200 rounded-lg px-3 py-2">
+            <span class="text-xs font-medium text-orange-700 font-mono">{{ notice.type | replace('_', ' ') | title }}</span>
+            <p class="text-gray-700 text-sm mt-0.5">{{ notice.description }}</p>
+            {% if notice.get('url') %}
+            <a href="{{ notice.url }}" class="text-indigo-600 hover:underline text-xs" target="_blank" rel="noopener">More info →</a>
+            {% endif %}
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="mt-4 text-xs text-gray-400 border-t border-gray-100 pt-3">
+      License information is self-reported by the cube developer and has not been verified by the AI Alliance.
+      Always consult the source URL and original benchmark authors for authoritative terms.
+    </div>
+  </section>
+
+  <!-- ── Stress results ────────────────────────────────────────────────── -->
+  {% if stress_data %}
+  <section class="bg-white rounded-xl border border-gray-200 p-5">
+    <h2 class="text-lg font-bold mb-1">Stress Test Results</h2>
+    <p class="text-xs text-gray-400 mb-4">Generated {{ stress_data.get('generated_at', '—') }} · <a href="../../{{ entry.stress_results_url }}" class="text-indigo-600 hover:underline">Raw JSON</a></p>
+
+    {% for provider, data in stress_data.get('providers', {}).items() %}
+    <div class="mb-4">
+      <h3 class="font-semibold text-sm text-gray-700 mb-2">Provider: <span class="font-mono">{{ provider }}</span>
+        {% if data.passed %}
+        <span class="ml-2 text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">Passed</span>
+        {% else %}
+        <span class="ml-2 text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full">Failed</span>
+        {% endif %}
+      </h3>
+      {% set metrics = data.get('metrics') or {} %}
+      {% if metrics %}
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-xs text-gray-600 border border-gray-100 rounded">
+          <thead>
+            <tr class="bg-gray-50 border-b border-gray-100">
+              <th class="px-3 py-2 text-left">Metric</th>
+              <th class="px-3 py-2 text-right">Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for k, v in metrics.items() %}
+            {% if v is not none %}
+            <tr class="border-b border-gray-50 last:border-0">
+              <td class="px-3 py-1.5 font-mono text-gray-500">{{ k | replace('_', ' ') }}</td>
+              <td class="px-3 py-1.5 text-right font-medium text-gray-800">{{ v }}</td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% elif data.get('error') %}
+      <p class="text-xs text-red-600 bg-red-50 px-3 py-2 rounded">Error: {{ data.error }}</p>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </section>
+  {% elif entry.has_stress_results %}
+  <section class="bg-white rounded-xl border border-gray-200 p-5">
+    <h2 class="text-lg font-bold mb-2">Stress Test Results</h2>
+    <a href="../../{{ entry.stress_results_url }}" class="text-indigo-600 hover:underline text-sm">View raw JSON →</a>
+  </section>
+  {% else %}
+  <section class="bg-gray-50 rounded-xl border border-dashed border-gray-300 p-5 text-center text-gray-400 text-sm">
+    Slow check not yet run. Stress test results will appear here after the async compliance check completes.
+  </section>
+  {% endif %}
+
+  <!-- ── Parallelization info ──────────────────────────────────────────── -->
+  {% if entry.get('parallelization_mode') or entry.get('max_concurrent_tasks') %}
+  <section class="bg-white rounded-xl border border-gray-200 p-5">
+    <h2 class="text-lg font-bold mb-3">Parallelization</h2>
+    <div class="flex gap-8 text-sm">
+      {% if entry.get('parallelization_mode') %}
+      <div>
+        <span class="text-gray-500 text-xs uppercase tracking-wider">Mode</span>
+        <p class="font-mono font-medium text-gray-800 mt-1">{{ entry.parallelization_mode }}</p>
+      </div>
+      {% endif %}
+      {% if entry.get('max_concurrent_tasks') %}
+      <div>
+        <span class="text-gray-500 text-xs uppercase tracking-wider">Max concurrent tasks</span>
+        <p class="font-bold text-gray-800 mt-1">{{ entry.max_concurrent_tasks }}</p>
+      </div>
+      {% endif %}
+    </div>
+  </section>
+  {% endif %}
+
+</main>
+
+<!-- ── Footer ────────────────────────────────────────────────────────────── -->
+<footer class="border-t border-gray-200 bg-white mt-8 py-6 text-center text-xs text-gray-400">
+  <p>
+    CUBE Registry — <a href="https://github.com/The-AI-Alliance/cube-registry" class="underline">GitHub</a> ·
+    <a href="../" class="underline">All benchmarks</a> ·
+    Generated {{ generated_at }}
+  </p>
+</footer>
+
+<script>
+function copyPipInstall() {
+  const cmd = document.getElementById('pip-cmd').textContent;
+  navigator.clipboard.writeText(cmd).then(() => {
+    const btn = document.getElementById('copy-btn');
+    btn.textContent = 'Copied!';
+    btn.classList.add('bg-green-700');
+    setTimeout(() => {
+      btn.textContent = 'Copy';
+      btn.classList.remove('bg-green-700');
+    }, 2000);
+  });
+}
+</script>
+</body>
+</html>
