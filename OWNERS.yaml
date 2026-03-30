@@ -1,3 +1,5 @@
 # OWNERS.yaml — do not edit by hand, maintained by CI
 # Maps benchmark id → list of GitHub handles that may modify that entry.
 # Updated automatically by the update-owners workflow after a successful merge.
+osworld:
+- recursix
