@@ -4,10 +4,6 @@ The official catalog of CUBE-compliant benchmarks.
 
 [**Browse benchmarks →**](https://the-ai-alliance.github.io/cube-registry)
 
-> **Note:** The live site above requires GitHub Pages to be enabled for this repository
-> (Settings → Pages → Source: Deploy from branch `main`, folder `/docs`).
-> Until then, the generated HTML is available in the [`docs/`](docs/index.html) folder.
-
 ---
 
 ## What is this?
