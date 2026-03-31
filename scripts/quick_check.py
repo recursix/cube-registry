@@ -21,6 +21,7 @@ import argparse
 import importlib
 import inspect
 import json
+import re
 import subprocess
 import sys
 import tempfile
@@ -28,6 +29,9 @@ from pathlib import Path
 from typing import Any
 
 import jsonschema
+
+# Strict allowlist for package names — mirrors registry-schema.json pattern.
+_PACKAGE_NAME_RE = re.compile(r"^[a-z0-9]([a-z0-9._-]*[a-z0-9])?$")
 from ruamel.yaml import YAML
 
 # Resolve paths relative to this script's location
@@ -70,7 +74,7 @@ def pip_install_package(package: str, version: str, dev_install_url: str | None 
     print(f"  Installing {pkg_spec} ...")
     try:
         result = subprocess.run(
-            [sys.executable, "-m", "pip", "install", "--quiet", pkg_spec],
+            [sys.executable, "-m", "pip", "install", pkg_spec],
             capture_output=True,
             text=True,
             timeout=300,
@@ -88,7 +92,7 @@ def pip_install_package(package: str, version: str, dev_install_url: str | None 
         print(f"  ::warning::PyPI install failed. Trying dev_install_url: {dev_install_url}")
         try:
             result = subprocess.run(
-                [sys.executable, "-m", "pip", "install", "--quiet", dev_install_url],
+                [sys.executable, "-m", "pip", "install", dev_install_url],
                 capture_output=True,
                 text=True,
                 timeout=600,
@@ -339,6 +343,16 @@ def write_derived_fields(entry_path: Path, entry: dict, derived: dict, pr_author
     with open(entry_path) as f:
         doc = yaml.load(f)
 
+    # Integrity guard: verify immutable fields survived the YAML load unchanged.
+    # A crafted YAML with anchors/aliases could mutate these on round-trip.
+    for immutable in ("id", "package", "version"):
+        if str(doc.get(immutable, "")) != str(entry.get(immutable, "")):
+            raise RuntimeError(
+                f"Integrity check failed: '{immutable}' changed after YAML round-trip "
+                f"(was '{entry.get(immutable)}', now '{doc.get(immutable)}'). "
+                f"This may indicate a malformed YAML anchor/alias attack."
+            )
+
     # Status: only set if not already 'archived'
     if doc.get("status") != "archived":
         doc["status"] = "active"
@@ -432,6 +446,18 @@ def main() -> None:
 
     package = entry["package"]
     version = entry["version"]
+
+    # --- Step 1c: Validate package name format ---
+    # Schema validation already enforces the pattern, but we re-check here as a
+    # defence-in-depth measure before passing the value to pip or importlib.
+    if not _PACKAGE_NAME_RE.match(package):
+        print(
+            f"::error file={entry_path}::Invalid package name '{package}'. "
+            f"Must match PyPI normalised naming (lowercase, digits, hyphens, dots, underscores)."
+        )
+        print(f"❌ Invalid package name: '{package}'")
+        sys.exit(1)
+    print(f"  ✅ Package name valid: '{package}'")
 
     # --- Step 2: pip install ---
     print(f"\nStep 2: Package installation")

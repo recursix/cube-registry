@@ -13,12 +13,16 @@ Exit codes:
 from __future__ import annotations
 
 import argparse
+import re
 import subprocess
 import sys
 from pathlib import Path
 from typing import Optional
 
 import yaml
+
+# GitHub username rules: 1-39 chars, alphanumeric + hyphens, no leading/trailing hyphen.
+_GITHUB_HANDLE_RE = re.compile(r"^[a-zA-Z0-9]([a-zA-Z0-9-]{0,37}[a-zA-Z0-9])?$")
 
 
 def read_owners_from_main() -> dict[str, list[str]]:
@@ -62,6 +66,22 @@ def check_ownership(
     all_passed = True
 
     for filepath in changed_files:
+        # Reject path traversal attempts (e.g. "../../../etc/passwd").
+        # All legitimate paths are relative and stay within the repo root.
+        try:
+            resolved = Path(filepath).resolve()
+            # Ensure the path doesn't escape the current directory via ".."
+            Path(filepath).relative_to(Path(".").resolve())
+        except ValueError:
+            print(f"::error::Path traversal detected in changed file: '{filepath}'")
+            print(f"❌ BLOCKED: path traversal attempt rejected.")
+            all_passed = False
+            continue
+        if ".." in Path(filepath).parts:
+            print(f"::error::Rejecting changed file path with '..' component: '{filepath}'")
+            all_passed = False
+            continue
+
         p = Path(filepath)
 
         # Block any direct modification of OWNERS.yaml
@@ -141,6 +161,13 @@ def main() -> None:
 
     pr_author: str = args.pr_author.lstrip("@")
     changed_files: list[str] = args.changed_files
+
+    # Validate the GitHub handle before using it in any comparisons.
+    # Rejects handles with shell metacharacters, spaces, or other unexpected chars.
+    if not _GITHUB_HANDLE_RE.match(pr_author):
+        print(f"::error::Invalid PR author handle: '{pr_author}'")
+        print(f"❌ Invalid PR author handle. Expected a valid GitHub username.")
+        sys.exit(1)
 
     print(f"=== CUBE Registry Ownership Check ===")
     print(f"PR author: @{pr_author}")

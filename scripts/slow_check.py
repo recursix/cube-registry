@@ -25,14 +25,20 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import subprocess
 import sys
+import tempfile
 import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
 from ruamel.yaml import YAML
+
+# Strict allowlist for package names (PyPI normalised naming).
+# Prevents code injection when the package name is used in subprocess calls.
+_PACKAGE_NAME_RE = re.compile(r"^[a-z0-9]([a-z0-9._-]*[a-z0-9])?$")
 
 SCRIPT_DIR = Path(__file__).parent.resolve()
 REPO_ROOT = SCRIPT_DIR.parent
@@ -56,48 +62,57 @@ def run_docker_debug_episode(entry: dict, provider: str) -> dict[str, Any]:
     version = entry["version"]
     benchmark_id = entry["id"]
 
+    # Validate package name before using it in any subprocess call.
+    # This is the primary defence against code injection via a crafted package field.
+    if not _PACKAGE_NAME_RE.match(package):
+        raise RuntimeError(
+            f"Invalid package name '{package}'. Must match PyPI normalised naming "
+            f"(lowercase letters, digits, hyphens, dots, underscores)."
+        )
+
     print(f"  [docker] Installing {package}=={version} ...")
     result = subprocess.run(
-        [sys.executable, "-m", "pip", "install", "--quiet", f"{package}=={version}"],
+        [sys.executable, "-m", "pip", "install", f"{package}=={version}"],
         capture_output=True,
         text=True,
     )
     if result.returncode != 0:
         raise RuntimeError(f"pip install failed: {result.stderr}")
 
-    # Run the debug episode in a subprocess to isolate execution
-    debug_script = f"""
-import importlib, time, sys
+    # The debug script receives the package name as a CLI argument — never interpolated
+    # into the script body — so a crafted package name cannot inject code.
+    debug_script = """\
+import importlib, time, sys, json, statistics, argparse
 
-pkg = importlib.import_module("{package.replace('-', '_')}")
+parser = argparse.ArgumentParser()
+parser.add_argument("--package", required=True)
+args = parser.parse_args()
+
+module_name = args.package.replace("-", "_")
+pkg = importlib.import_module(module_name)
 BenchmarkClass = pkg.Benchmark
 
 t0 = time.time()
 benchmark = BenchmarkClass()
 setup_time = time.time() - t0
 
-tasks = benchmark.debug_tasks() if hasattr(benchmark, 'debug_tasks') else []
+tasks = benchmark.debug_tasks() if hasattr(benchmark, "debug_tasks") else []
 if not tasks:
     print("ERROR: no debug tasks", file=sys.stderr)
     sys.exit(1)
 
 task = tasks[0]
 
-# Spawn
 t_spawn = time.time()
-obs = benchmark.reset(task_id=task.task_id if hasattr(task, 'task_id') else str(task))
+obs = benchmark.reset(task_id=task.task_id if hasattr(task, "task_id") else str(task))
 spawn_time = time.time() - t_spawn
 
-# Run debug agent if available
 step_times = []
-if hasattr(benchmark, 'make_debug_agent'):
+if hasattr(benchmark, "make_debug_agent"):
     agent = benchmark.make_debug_agent()
-    for _ in range(3):  # run a few steps
+    for _ in range(3):
         t_step = time.time()
-        if hasattr(agent, 'act'):
-            action = agent.act(obs)
-        else:
-            action = None
+        action = agent.act(obs) if hasattr(agent, "act") else None
         step_times.append(time.time() - t_step)
         if action is not None:
             try:
@@ -107,32 +122,35 @@ if hasattr(benchmark, 'make_debug_agent'):
             except Exception:
                 break
 
-# Evaluation
-eval_result = benchmark.evaluate() if hasattr(benchmark, 'evaluate') else {{}}
+eval_result = benchmark.evaluate() if hasattr(benchmark, "evaluate") else {}
+if hasattr(benchmark, "close"):
+    benchmark.close()
 
-# Close
-benchmark.close() if hasattr(benchmark, 'close') else None
-
-import statistics
-results = {{
+results = {
     "setup_time_s": round(setup_time, 3),
     "spawn_time_s": round(spawn_time, 3),
     "step_latency_p50_s": round(statistics.median(step_times), 3) if step_times else None,
-    "step_latency_p95_s": round(sorted(step_times)[int(len(step_times)*0.95)] if len(step_times) > 1 else step_times[0], 3) if step_times else None,
+    "step_latency_p95_s": round(sorted(step_times)[int(len(step_times) * 0.95)] if len(step_times) > 1 else step_times[0], 3) if step_times else None,
     "step_latency_p99_s": round(sorted(step_times)[-1], 3) if step_times else None,
     "episode_time_s": round(sum(step_times) + spawn_time, 3),
     "eval_valid": isinstance(eval_result, dict),
-}}
-import json
+}
 print(json.dumps(results))
 """
 
-    result = subprocess.run(
-        [sys.executable, "-c", debug_script],
-        capture_output=True,
-        text=True,
-        timeout=600,
-    )
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as tmp:
+        tmp.write(debug_script)
+        tmp_path = tmp.name
+
+    try:
+        result = subprocess.run(
+            [sys.executable, tmp_path, "--package", package],
+            capture_output=True,
+            text=True,
+            timeout=600,
+        )
+    finally:
+        Path(tmp_path).unlink(missing_ok=True)
 
     if result.returncode != 0:
         raise RuntimeError(f"Debug episode failed:\n{result.stderr}")

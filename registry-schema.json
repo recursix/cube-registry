@@ -29,13 +29,14 @@
     },
     "package": {
       "type": "string",
-      "description": "PyPI package name for pip install.",
-      "minLength": 1
+      "description": "PyPI package name for pip install. Must follow PyPI normalised naming rules.",
+      "minLength": 1,
+      "pattern": "^[a-z0-9]([a-z0-9._-]*[a-z0-9])?$"
     },
     "dev_install_url": {
       "type": "string",
-      "description": "Optional git or direct URL for pip install before the package is published to PyPI. Used by the manual-refresh workflow and as a fallback when PyPI install fails. Example: git+https://github.com/org/repo#subdirectory=cubes/my-cube",
-      "pattern": "^(git\\+https?://|https?://)"
+      "description": "Optional git+https URL for pip install before the package is published to PyPI. Only github.com and gitlab.com are allowed as hosts. Example: git+https://github.com/org/repo#subdirectory=cubes/my-cube",
+      "pattern": "^git\\+https://(github\\.com|gitlab\\.com)/"
     },
     "authors": {
       "type": "array",
