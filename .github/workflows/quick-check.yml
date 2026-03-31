@@ -86,9 +86,9 @@ jobs:
             echo "=========================================="
 
             # Run the actual package install + introspection inside a sandboxed
-            # Docker container with no network access after install, no secrets.
+            # Docker container with memory/CPU limits and no secrets injected.
+            # Network access is required for pip install; security boundary = no credentials.
             docker run --rm \
-              --network none \
               --memory 2g \
               --cpus 2 \
               -v "$(pwd):/workspace:ro" \
