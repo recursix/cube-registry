@@ -25,7 +25,7 @@
   <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
     <div class="flex items-center gap-3">
       <span class="text-2xl font-bold text-indigo-700 tracking-tight">CUBE Registry</span>
-      <span class="text-sm bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded font-medium">3 benchmarks</span>
+      <span class="text-sm bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded font-medium">0 benchmarks</span>
     </div>
     <nav class="flex gap-4 text-sm text-gray-600">
       <a href="https://github.com/The-AI-Alliance/cube-standard" class="hover:text-indigo-700" target="_blank" rel="noopener">Spec</a>
@@ -65,36 +65,6 @@
     <!-- Tag filter -->
     <div class="flex flex-wrap gap-1.5">
       
-      <button
-        class="filter-tag text-xs px-2.5 py-1 rounded-full border border-gray-300 text-gray-600 hover:bg-indigo-50 hover:border-indigo-400 hover:text-indigo-700 transition-colors"
-        data-tag="desktop"
-        onclick="toggleTagFilter(this)"
-      >desktop</button>
-      
-      <button
-        class="filter-tag text-xs px-2.5 py-1 rounded-full border border-gray-300 text-gray-600 hover:bg-indigo-50 hover:border-indigo-400 hover:text-indigo-700 transition-colors"
-        data-tag="gui"
-        onclick="toggleTagFilter(this)"
-      >gui</button>
-      
-      <button
-        class="filter-tag text-xs px-2.5 py-1 rounded-full border border-gray-300 text-gray-600 hover:bg-indigo-50 hover:border-indigo-400 hover:text-indigo-700 transition-colors"
-        data-tag="multimodal"
-        onclick="toggleTagFilter(this)"
-      >multimodal</button>
-      
-      <button
-        class="filter-tag text-xs px-2.5 py-1 rounded-full border border-gray-300 text-gray-600 hover:bg-indigo-50 hover:border-indigo-400 hover:text-indigo-700 transition-colors"
-        data-tag="os"
-        onclick="toggleTagFilter(this)"
-      >os</button>
-      
-      <button
-        class="filter-tag text-xs px-2.5 py-1 rounded-full border border-gray-300 text-gray-600 hover:bg-indigo-50 hover:border-indigo-400 hover:text-indigo-700 transition-colors"
-        data-tag="web"
-        onclick="toggleTagFilter(this)"
-      >web</button>
-      
     </div>
 
     <!-- Feature filter -->
@@ -127,180 +97,10 @@
   <div id="card-grid" class="hidden grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
 
     
-    <article
-      class="bg-white rounded-xl border border-gray-200 card-hover flex flex-col overflow-hidden"
-      data-id="miniwob"
-      data-tags="web gui"
-      data-features=""
-      data-infra=""
-      data-status="active"
-      data-name="miniwob++"
-      data-description="miniwob++ (mini world of bits++) is a collection of 125 browser-based web-interaction tasks ranging from simple button clicks to multi-step form filling. the cube wrapper starts a local http server that serves the miniwob task pages and exposes them via a browser tool; each task runs independently with no shared state.
-"
-    >
-      <!-- Card header -->
-      <div class="p-4 flex-1 flex flex-col gap-2">
-        <!-- Status + task count -->
-        <div class="flex items-center justify-between gap-2">
-          <span class="inline-flex items-center text-xs font-medium px-2 py-0.5 rounded-full bg-green-100 text-green-800">
-            Active
-          </span>
-          
-          <span class="text-xs text-gray-400">125 tasks</span>
-          
-        </div>
-
-        <!-- Name -->
-        <h2 class="font-bold text-gray-900 text-base leading-snug">
-          <a href="miniwob/" class="hover:text-indigo-700">MiniWob++</a>
-        </h2>
-
-        <!-- Description -->
-        <p class="text-sm text-gray-500 line-clamp-3 flex-1">MiniWob++ (Mini World of Bits++) is a collection of 125 browser-based web-interaction tasks ranging from simple button clicks to multi-step form filling. The CUBE wrapper starts a local HTTP server th…</p>
-
-        <!-- Tags -->
-        
-        <div class="flex flex-wrap gap-1 mt-1">
-          
-          <span class="text-xs px-2 py-0.5 rounded-full font-medium bg-blue-100 text-blue-800">web</span>
-          
-          <span class="text-xs px-2 py-0.5 rounded-full font-medium bg-green-100 text-green-800">gui</span>
-          
-        </div>
-        
-
-        <!-- Feature flags (compact) -->
-        
-      </div>
-
-      <!-- Card footer: links -->
-      <div class="border-t border-gray-100 px-4 py-2.5 flex items-center gap-3 text-xs text-gray-500">
-        <a href="miniwob/" class="hover:text-indigo-700 font-medium text-indigo-600">Details →</a>
-        
-        
-        <a href="https://miniwob.farama.org" class="hover:text-gray-800" target="_blank" rel="noopener">Docs</a>
-        
-        <a href="https://pypi.org/project/miniwob-cube/" class="ml-auto hover:text-gray-800" target="_blank" rel="noopener">PyPI</a>
-      </div>
-    </article>
-    
-    <article
-      class="bg-white rounded-xl border border-gray-200 card-hover flex flex-col overflow-hidden"
-      data-id="osworld"
-      data-tags="os gui desktop multimodal"
-      data-features=""
-      data-infra="aws"
-      data-status="active"
-      data-name="osworld"
-      data-description="osworld benchmarks multimodal agents on open-ended computer tasks executed inside a real ubuntu 22.04 desktop environment. tasks span 369 scenarios across applications such as chrome, libreoffice, thunderbird, and the os shell. each task launches a fresh vm from a qcow2 image, restores a snapshot, runs setup scripts, and evaluates the final desktop state.
-"
-    >
-      <!-- Card header -->
-      <div class="p-4 flex-1 flex flex-col gap-2">
-        <!-- Status + task count -->
-        <div class="flex items-center justify-between gap-2">
-          <span class="inline-flex items-center text-xs font-medium px-2 py-0.5 rounded-full bg-green-100 text-green-800">
-            Active
-          </span>
-          
-          <span class="text-xs text-gray-400">369 tasks</span>
-          
-        </div>
-
-        <!-- Name -->
-        <h2 class="font-bold text-gray-900 text-base leading-snug">
-          <a href="osworld/" class="hover:text-indigo-700">OSWorld</a>
-        </h2>
-
-        <!-- Description -->
-        <p class="text-sm text-gray-500 line-clamp-3 flex-1">OSWorld benchmarks multimodal agents on open-ended computer tasks executed inside a real Ubuntu 22.04 desktop environment. Tasks span 369 scenarios across applications such as Chrome, LibreOffice, Thu…</p>
-
-        <!-- Tags -->
-        
-        <div class="flex flex-wrap gap-1 mt-1">
-          
-          <span class="text-xs px-2 py-0.5 rounded-full font-medium bg-gray-100 text-gray-800">os</span>
-          
-          <span class="text-xs px-2 py-0.5 rounded-full font-medium bg-green-100 text-green-800">gui</span>
-          
-          <span class="text-xs px-2 py-0.5 rounded-full font-medium bg-teal-100 text-teal-800">desktop</span>
-          
-          <span class="text-xs px-2 py-0.5 rounded-full font-medium bg-rose-100 text-rose-800">multimodal</span>
-          
-        </div>
-        
-
-        <!-- Feature flags (compact) -->
-        
-      </div>
-
-      <!-- Card footer: links -->
-      <div class="border-t border-gray-100 px-4 py-2.5 flex items-center gap-3 text-xs text-gray-500">
-        <a href="osworld/" class="hover:text-indigo-700 font-medium text-indigo-600">Details →</a>
-        
-        <a href="https://arxiv.org/abs/2404.07972" class="hover:text-gray-800" target="_blank" rel="noopener">Paper</a>
-        
-        
-        <a href="https://pypi.org/project/osworld-cube/" class="ml-auto hover:text-gray-800" target="_blank" rel="noopener">PyPI</a>
-      </div>
-    </article>
-    
-    <article
-      class="bg-white rounded-xl border border-gray-200 card-hover flex flex-col overflow-hidden"
-      data-id="workarena"
-      data-tags="web gui"
-      data-features=""
-      data-infra=""
-      data-status="active"
-      data-name="workarena"
-      data-description="workarena evaluates agents on enterprise service-desk workflows inside a real servicenow personal developer instance. tasks are organized into three levels: l1 atomic tasks (~33 unique tasks × multiple seeds), l2 compositional tasks, and l3 extended tasks with company protocols. requires a free servicenow pdi and browser-automation tooling.
-"
-    >
-      <!-- Card header -->
-      <div class="p-4 flex-1 flex flex-col gap-2">
-        <!-- Status + task count -->
-        <div class="flex items-center justify-between gap-2">
-          <span class="inline-flex items-center text-xs font-medium px-2 py-0.5 rounded-full bg-green-100 text-green-800">
-            Active
-          </span>
-          
-          <span class="text-xs text-gray-400">165 tasks</span>
-          
-        </div>
-
-        <!-- Name -->
-        <h2 class="font-bold text-gray-900 text-base leading-snug">
-          <a href="workarena/" class="hover:text-indigo-700">WorkArena</a>
-        </h2>
-
-        <!-- Description -->
-        <p class="text-sm text-gray-500 line-clamp-3 flex-1">WorkArena evaluates agents on enterprise service-desk workflows inside a real ServiceNow Personal Developer Instance. Tasks are organized into three levels: L1 atomic tasks (~33 unique tasks × multipl…</p>
-
-        <!-- Tags -->
-        
-        <div class="flex flex-wrap gap-1 mt-1">
-          
-          <span class="text-xs px-2 py-0.5 rounded-full font-medium bg-blue-100 text-blue-800">web</span>
-          
-          <span class="text-xs px-2 py-0.5 rounded-full font-medium bg-green-100 text-green-800">gui</span>
-          
-        </div>
-        
-
-        <!-- Feature flags (compact) -->
-        
-      </div>
-
-      <!-- Card footer: links -->
-      <div class="border-t border-gray-100 px-4 py-2.5 flex items-center gap-3 text-xs text-gray-500">
-        <a href="workarena/" class="hover:text-indigo-700 font-medium text-indigo-600">Details →</a>
-        
-        <a href="https://arxiv.org/abs/2402.05181" class="hover:text-gray-800" target="_blank" rel="noopener">Paper</a>
-        
-        
-        <a href="https://pypi.org/project/workarena-cube/" class="ml-auto hover:text-gray-800" target="_blank" rel="noopener">PyPI</a>
-      </div>
-    </article>
+    <div class="col-span-full text-center py-20 text-gray-400">
+      <p class="text-2xl mb-2">No benchmarks yet</p>
+      <p class="text-sm">Be the first to <a href="https://github.com/The-AI-Alliance/cube-registry/blob/main/README.md#submitting-a-benchmark" class="text-indigo-600 underline">submit one</a>.</p>
+    </div>
     
   </div>
 
@@ -328,151 +128,6 @@
       </thead>
       <tbody id="table-body">
         
-        <tr class="table-row border-b border-gray-100 last:border-0 hover:bg-gray-50"
-            data-id="miniwob"
-            data-tags="web gui"
-            data-features=""
-            data-infra=""
-            data-status="active"
-            data-name="miniwob++"
-            data-description="miniwob++ (mini world of bits++) is a collection of 125 browser-based web-interaction tasks ranging from simple button clicks to multi-step form filling. the cube wrapper starts a local http server that serves the miniwob task pages and exposes them via a browser tool; each task runs independently with no shared state.
-">
-          <td class="px-4 py-3">
-            <a href="miniwob/" class="font-semibold text-gray-900 hover:text-indigo-700">MiniWob++</a>
-            <p class="text-xs text-gray-400 font-mono">miniwob</p>
-          </td>
-          <td class="px-4 py-3 font-mono text-xs text-gray-600">1.0.0</td>
-          <td class="px-4 py-3">
-            <div class="flex flex-wrap gap-1">
-              
-              <span class="text-xs px-1.5 py-0.5 rounded-full font-medium bg-blue-100 text-blue-800">web</span>
-              
-              <span class="text-xs px-1.5 py-0.5 rounded-full font-medium bg-green-100 text-green-800">gui</span>
-              
-            </div>
-          </td>
-          <td class="px-4 py-3 text-gray-600">
-            125
-          </td>
-          <td class="px-4 py-3 text-gray-600 font-mono text-xs">
-            local
-          </td>
-          <td class="px-4 py-3 text-center">
-            
-            <span class="text-green-600 font-bold" title="Has debug task">✓</span>
-            
-          </td>
-          <td class="px-4 py-3 font-mono text-xs text-gray-600">
-            MIT
-          </td>
-          <td class="px-4 py-3">
-            <span class="inline-flex items-center text-xs font-medium px-2 py-0.5 rounded-full bg-green-100 text-green-800">
-              Active
-            </span>
-          </td>
-          <td class="px-4 py-3 text-right text-xs">
-            <a href="miniwob/" class="text-indigo-600 hover:underline">Details →</a>
-          </td>
-        </tr>
-        
-        <tr class="table-row border-b border-gray-100 last:border-0 hover:bg-gray-50"
-            data-id="osworld"
-            data-tags="os gui desktop multimodal"
-            data-features=""
-            data-infra="aws"
-            data-status="active"
-            data-name="osworld"
-            data-description="osworld benchmarks multimodal agents on open-ended computer tasks executed inside a real ubuntu 22.04 desktop environment. tasks span 369 scenarios across applications such as chrome, libreoffice, thunderbird, and the os shell. each task launches a fresh vm from a qcow2 image, restores a snapshot, runs setup scripts, and evaluates the final desktop state.
-">
-          <td class="px-4 py-3">
-            <a href="osworld/" class="font-semibold text-gray-900 hover:text-indigo-700">OSWorld</a>
-            <p class="text-xs text-gray-400 font-mono">osworld</p>
-          </td>
-          <td class="px-4 py-3 font-mono text-xs text-gray-600">0.1.0</td>
-          <td class="px-4 py-3">
-            <div class="flex flex-wrap gap-1">
-              
-              <span class="text-xs px-1.5 py-0.5 rounded-full font-medium bg-gray-100 text-gray-800">os</span>
-              
-              <span class="text-xs px-1.5 py-0.5 rounded-full font-medium bg-green-100 text-green-800">gui</span>
-              
-              <span class="text-xs px-1.5 py-0.5 rounded-full font-medium bg-teal-100 text-teal-800">desktop</span>
-              
-              <span class="text-xs px-1.5 py-0.5 rounded-full font-medium bg-rose-100 text-rose-800">multimodal</span>
-              
-            </div>
-          </td>
-          <td class="px-4 py-3 text-gray-600">
-            369
-          </td>
-          <td class="px-4 py-3 text-gray-600 font-mono text-xs">
-            aws
-          </td>
-          <td class="px-4 py-3 text-center">
-            
-            <span class="text-green-600 font-bold" title="Has debug task">✓</span>
-            
-          </td>
-          <td class="px-4 py-3 font-mono text-xs text-gray-600">
-            CC-BY-4.0
-          </td>
-          <td class="px-4 py-3">
-            <span class="inline-flex items-center text-xs font-medium px-2 py-0.5 rounded-full bg-green-100 text-green-800">
-              Active
-            </span>
-          </td>
-          <td class="px-4 py-3 text-right text-xs">
-            <a href="osworld/" class="text-indigo-600 hover:underline">Details →</a>
-          </td>
-        </tr>
-        
-        <tr class="table-row border-b border-gray-100 last:border-0 hover:bg-gray-50"
-            data-id="workarena"
-            data-tags="web gui"
-            data-features=""
-            data-infra=""
-            data-status="active"
-            data-name="workarena"
-            data-description="workarena evaluates agents on enterprise service-desk workflows inside a real servicenow personal developer instance. tasks are organized into three levels: l1 atomic tasks (~33 unique tasks × multiple seeds), l2 compositional tasks, and l3 extended tasks with company protocols. requires a free servicenow pdi and browser-automation tooling.
-">
-          <td class="px-4 py-3">
-            <a href="workarena/" class="font-semibold text-gray-900 hover:text-indigo-700">WorkArena</a>
-            <p class="text-xs text-gray-400 font-mono">workarena</p>
-          </td>
-          <td class="px-4 py-3 font-mono text-xs text-gray-600">1.0.0</td>
-          <td class="px-4 py-3">
-            <div class="flex flex-wrap gap-1">
-              
-              <span class="text-xs px-1.5 py-0.5 rounded-full font-medium bg-blue-100 text-blue-800">web</span>
-              
-              <span class="text-xs px-1.5 py-0.5 rounded-full font-medium bg-green-100 text-green-800">gui</span>
-              
-            </div>
-          </td>
-          <td class="px-4 py-3 text-gray-600">
-            165
-          </td>
-          <td class="px-4 py-3 text-gray-600 font-mono text-xs">
-            local
-          </td>
-          <td class="px-4 py-3 text-center">
-            
-            <span class="text-green-600 font-bold" title="Has debug task">✓</span>
-            
-          </td>
-          <td class="px-4 py-3 font-mono text-xs text-gray-600">
-            Apache-2.0
-          </td>
-          <td class="px-4 py-3">
-            <span class="inline-flex items-center text-xs font-medium px-2 py-0.5 rounded-full bg-green-100 text-green-800">
-              Active
-            </span>
-          </td>
-          <td class="px-4 py-3 text-right text-xs">
-            <a href="workarena/" class="text-indigo-600 hover:underline">Details →</a>
-          </td>
-        </tr>
-        
       </tbody>
     </table>
     <div id="table-no-results" class="hidden text-center py-20 text-gray-400">
@@ -487,7 +142,7 @@
   <p>
     CUBE Registry — <a href="https://github.com/The-AI-Alliance/cube-registry" class="underline">GitHub</a> ·
     <a href="https://github.com/The-AI-Alliance/cube-standard" class="underline">CUBE Standard</a> ·
-    Generated 2026-03-31 19:40 UTC
+    Generated 2026-03-31 19:45 UTC
   </p>
   <p class="mt-1">License information is self-reported. The AI Alliance makes no warranty as to its accuracy.</p>
 </footer>
