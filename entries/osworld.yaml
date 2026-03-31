@@ -1,0 +1,39 @@
+id: osworld
+name: "OSWorld"
+version: "0.1.0"
+description: >
+  OSWorld benchmarks multimodal agents on open-ended computer tasks executed
+  inside a real Ubuntu 22.04 desktop environment. Tasks span 369 scenarios
+  across applications such as Chrome, LibreOffice, Thunderbird, and the OS
+  shell. Each task launches a fresh VM from a qcow2 image, restores a
+  snapshot, runs setup scripts, and evaluates the final desktop state.
+package: osworld-cube
+dev_install_url: "git+https://github.com/The-AI-Alliance/cube-harness#subdirectory=cubes/osworld-cube"
+
+authors:
+  - github: kushasareen
+    name: Kusha Sareen
+  - github: amanjaiswal73892
+    name: Aman Jaiswal
+  - github: recursix
+    name: Alexandre Lacoste
+
+legal:
+  wrapper_license: MIT
+  benchmark_license:
+    reported: CC-BY-4.0
+    source_url: "https://creativecommons.org/licenses/by/4.0/legalcode"
+  notices:
+    - type: software_registration
+      description: "Ubuntu desktop with pre-installed commercial applications including LibreOffice, Thunderbird, and others"
+
+tags:
+  - os
+  - gui
+  - desktop
+  - multimodal
+
+paper: "https://arxiv.org/abs/2404.07972"
+supported_infra: [aws]
+max_concurrent_tasks: 1
+parallelization_mode: benchmark-parallel
