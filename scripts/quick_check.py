@@ -205,35 +205,27 @@ def introspect_benchmark(benchmark_cls: Any, package: str) -> dict[str, Any]:
     except Exception as e:
         raise RuntimeError(f"Failed to instantiate Benchmark(): {e}") from e
 
-    # --- task_count: use get_task_configs() (the real CUBE API) ---
-    # get_task_configs() must work on a freshly instantiated Benchmark without
-    # any external infrastructure.  If it raises or returns zero tasks the entry
-    # is rejected — this is a hard requirement for CUBE compliance.
-    task_cls = None
+    # --- task_count: read from benchmark_metadata.num_tasks ---
+    # task_count is a static property declared on the class — no infra needed.
+    # If num_tasks is 0 or missing the entry is rejected: benchmarks must declare
+    # their task count in BenchmarkMetadata.
+    task_cls = benchmark.task_config_class if hasattr(benchmark, "task_config_class") else None
     try:
-        configs = list(benchmark.get_task_configs())
-    except Exception as e:
+        num_tasks = benchmark.benchmark_metadata.num_tasks
+    except AttributeError as e:
         raise RuntimeError(
-            f"benchmark.get_task_configs() raised an exception: {e}\n"
-            "get_task_configs() must succeed on a plain Benchmark() instance with no "
-            "external infrastructure.  Fix the benchmark implementation."
+            f"benchmark.benchmark_metadata.num_tasks is not accessible: {e}\n"
+            "Benchmarks must declare a BenchmarkMetadata with num_tasks set."
         ) from e
 
-    if len(configs) == 0:
+    if not num_tasks:
         raise RuntimeError(
-            "benchmark.get_task_configs() returned zero tasks.\n"
-            "get_task_configs() must return at least one task on a plain Benchmark() "
-            "instance with no external infrastructure.  Fix the benchmark implementation."
+            "benchmark.benchmark_metadata.num_tasks is 0 or not set.\n"
+            "Set num_tasks in your BenchmarkMetadata class variable."
         )
 
-    derived["task_count"] = len(configs)
-    if configs:
-        task_cls = benchmark.task_config_class if hasattr(benchmark, "task_config_class") else None
-        if task_cls is None and hasattr(configs[0], "make"):
-            import typing
-            hints = typing.get_type_hints(configs[0].make) if hasattr(configs[0].make, "__annotations__") else {}
-            task_cls = hints.get("return")
-    print(f"  task_count: {derived['task_count']}")
+    derived["task_count"] = num_tasks
+    print(f"  task_count: {derived['task_count']} (from benchmark_metadata)")
 
     # --- has_debug_task: module-level get_debug_benchmark() (CUBE debug convention) ---
     has_debug_task = False
