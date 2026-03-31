@@ -116,7 +116,7 @@
   <section class="grid grid-cols-2 sm:grid-cols-4 gap-4">
     <div class="bg-white rounded-lg border border-gray-200 p-4 text-center">
       <div class="text-2xl font-bold text-indigo-700">
-        
+        125
       </div>
       <div class="text-xs text-gray-500 mt-1">Tasks</div>
     </div>
@@ -127,14 +127,14 @@
       <div class="text-xs text-gray-500 mt-1">Infra</div>
     </div>
     <div class="bg-white rounded-lg border border-gray-200 p-4 text-center">
-      <div class="text-2xl font-bold text-red-500">
-        No
+      <div class="text-2xl font-bold text-green-600">
+        Yes
       </div>
       <div class="text-xs text-gray-500 mt-1">Debug Task</div>
     </div>
     <div class="bg-white rounded-lg border border-gray-200 p-4 text-center">
-      <div class="text-2xl font-bold text-gray-400">
-        No
+      <div class="text-2xl font-bold text-green-600">
+        Yes
       </div>
       <div class="text-xs text-gray-500 mt-1">Debug Agent</div>
     </div>
@@ -142,6 +142,41 @@
 
   <!-- ── Feature flags ─────────────────────────────────────────────────── -->
   
+  
+  <section class="bg-white rounded-xl border border-gray-200 p-5">
+    <h2 class="text-lg font-bold mb-4">Feature Flags</h2>
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      
+      <div class="flex items-center gap-2 text-sm">
+        
+        <span class="w-5 h-5 rounded-full bg-gray-100 text-gray-400 flex items-center justify-center text-xs flex-shrink-0">—</span>
+        <span class="text-gray-400">async</span>
+        
+      </div>
+      
+      <div class="flex items-center gap-2 text-sm">
+        
+        <span class="w-5 h-5 rounded-full bg-gray-100 text-gray-400 flex items-center justify-center text-xs flex-shrink-0">—</span>
+        <span class="text-gray-400">streaming</span>
+        
+      </div>
+      
+      <div class="flex items-center gap-2 text-sm">
+        
+        <span class="w-5 h-5 rounded-full bg-gray-100 text-gray-400 flex items-center justify-center text-xs flex-shrink-0">—</span>
+        <span class="text-gray-400">multi_agent</span>
+        
+      </div>
+      
+      <div class="flex items-center gap-2 text-sm">
+        
+        <span class="w-5 h-5 rounded-full bg-gray-100 text-gray-400 flex items-center justify-center text-xs flex-shrink-0">—</span>
+        <span class="text-gray-400">multi_dim_reward</span>
+        
+      </div>
+      
+    </div>
+  </section>
   
 
   <!-- ── Resources ─────────────────────────────────────────────────────── -->
@@ -260,6 +295,18 @@ tags:
 paper: "https://arxiv.org/abs/2306.06070"
 getting_started_url: "https://miniwob.farama.org"
 parallelization_mode: task-parallel
+
+# Fields below are set by CI — do not edit manually.
+status: active
+task_count: 125
+has_debug_task: true
+has_debug_agent: true
+resources: []
+features:
+  async: false
+  streaming: false
+  multi_agent: false
+  multi_dim_reward: false
 </code></pre>
     </div>
   </section>
@@ -271,7 +318,7 @@ parallelization_mode: task-parallel
   <p>
     CUBE Registry — <a href="https://github.com/The-AI-Alliance/cube-registry" class="underline">GitHub</a> ·
     <a href="../" class="underline">All benchmarks</a> ·
-    Generated 2026-03-31 20:10 UTC
+    Generated 2026-03-31 20:23 UTC
   </p>
 </footer>
 

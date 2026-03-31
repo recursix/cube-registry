@@ -31,3 +31,15 @@ tags:
 paper: "https://arxiv.org/abs/2306.06070"
 getting_started_url: "https://miniwob.farama.org"
 parallelization_mode: task-parallel
+
+# Fields below are set by CI — do not edit manually.
+status: active
+task_count: 125
+has_debug_task: true
+has_debug_agent: true
+resources: []
+features:
+  async: false
+  streaming: false
+  multi_agent: false
+  multi_dim_reward: false
