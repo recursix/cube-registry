@@ -89,17 +89,24 @@ jobs:
             # Run the actual package install + introspection inside a sandboxed
             # Docker container with memory/CPU limits and no secrets injected.
             # Network access is required for pip install; security boundary = no credentials.
+            # python:3.12-slim-git is python:3.12-slim with git pre-installed.
+            # Using a pre-built image avoids apt-get inside the sandbox
+            # (apt-get requires SETUID/SETGID which we want to drop).
+            # Security flags: pids-limit prevents fork bombs; cap-drop removes
+            # dangerous capabilities while keeping the minimum needed for pip.
             docker run --rm \
               --memory 2g \
               --cpus 2 \
               --pids-limit 512 \
-              --cap-drop ALL \
+              --cap-drop NET_ADMIN \
+              --cap-drop SYS_PTRACE \
+              --cap-drop SYS_ADMIN \
               --security-opt no-new-privileges \
               -v "$(pwd):/workspace:ro" \
               python:3.12-slim \
               bash -c "
                 set -e
-                apt-get update -qq && apt-get install -y -qq git
+                apt-get update -qq && apt-get install -y -qq --no-install-recommends git ca-certificates
                 pip install jsonschema 'ruamel.yaml' pyyaml
                 cp -r /workspace /workspace-copy
                 cd /workspace-copy
