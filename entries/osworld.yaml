@@ -43,5 +43,6 @@ resources:
     scope: task
 
 status: active
+task_count: 369
 has_debug_task: true
 has_debug_agent: true

@@ -33,5 +33,6 @@ tags: [web, gui]
 parallelization_mode: task-parallel
 
 status: active
+task_count: 165
 has_debug_task: true
 has_debug_agent: true
