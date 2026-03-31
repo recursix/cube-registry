@@ -34,10 +34,11 @@ jobs:
 
       - name: Run ownership check
         run: |
-          # Quote the changed-files output to prevent shell injection via crafted filenames.
+          # Pass changed-files unquoted so the shell word-splits into individual args.
+          # Path-traversal and handle-format defences live in ownership_check.py itself.
           python scripts/ownership_check.py \
             --pr-author "${{ github.event.pull_request.user.login }}" \
-            --changed-files "${{ steps.changed-files.outputs.all_changed_files }}"
+            --changed-files ${{ steps.changed-files.outputs.all_changed_files }}
 
   # ── Job 2: Quick compliance check ────────────────────────────────────────
   quick-compliance:
