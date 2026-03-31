@@ -110,10 +110,12 @@ def find_benchmark_class(package: str) -> tuple[Any | None, str]:
 
     Resolution order:
     1. ``cube.benchmarks`` entry point matching the package name.
-    2. A class literally named ``Benchmark`` exported at the package top level.
+    2. Any class in the package module that has a ``get_task_configs`` method.
     """
+    # 1. Try cube.benchmarks entry point
     try:
-        eps = importlib.metadata.entry_points(group="cube.benchmarks")
+        eps = list(importlib.metadata.entry_points(group="cube.benchmarks"))
+        print(f"  [debug] cube.benchmarks entry points: {[ep.name for ep in eps]}")
         matched = [ep for ep in eps if ep.name == package]
         if matched:
             try:
@@ -121,14 +123,16 @@ def find_benchmark_class(package: str) -> tuple[Any | None, str]:
                 return cls, ""
             except Exception as e:
                 return None, f"Entry point '{matched[0].value}' failed to load: {e}"
-    except Exception:
-        pass
+    except Exception as ep_exc:
+        print(f"  [debug] entry_points() failed: {ep_exc}")
 
+    # 2. Import module, look for Benchmark class (by name or by API)
     try:
         mod = importlib.import_module(package.replace("-", "_"))
     except ImportError as e:
         return None, f"Could not import package '{package}': {e}"
 
+    # First: look for a class named Benchmark
     benchmark_cls = getattr(mod, "Benchmark", None)
     if benchmark_cls is None:
         for attr_name in dir(mod):
@@ -137,10 +141,25 @@ def find_benchmark_class(package: str) -> tuple[Any | None, str]:
                 benchmark_cls = attr
                 break
 
+    # Fallback: any class exposing the CUBE Benchmark API (get_task_configs)
+    if benchmark_cls is None:
+        for attr_name in dir(mod):
+            attr = getattr(mod, attr_name, None)
+            if (
+                attr is not None
+                and inspect.isclass(attr)
+                and attr.__module__.startswith(package.replace("-", "_"))
+                and callable(getattr(attr, "get_task_configs", None))
+            ):
+                print(f"  [debug] Found benchmark class via API scan: {attr}")
+                benchmark_cls = attr
+                break
+
     if benchmark_cls is None:
         return None, (
             f"Package '{package}' has no 'cube.benchmarks' entry point and does not export "
-            f"a class named 'Benchmark'."
+            f"a class with get_task_configs(). Registered entry points: "
+            f"{[ep.name for ep in importlib.metadata.entry_points(group='cube.benchmarks')]}"
         )
 
     return benchmark_cls, ""
