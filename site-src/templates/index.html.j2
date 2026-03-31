@@ -230,7 +230,7 @@
             {% if entry.task_count is not none %}{{ entry.task_count }}{% else %}—{% endif %}
           </td>
           <td class="px-4 py-3 text-gray-600 font-mono text-xs">
-            {{ (entry.get('supported_infra') or ['aws']) | join(', ') }}
+            {% if entry.get('supported_infra') %}{{ entry.supported_infra | join(', ') }}{% else %}local{% endif %}
           </td>
           <td class="px-4 py-3 text-center">
             {% if entry.has_debug_task %}

@@ -11,8 +11,8 @@ package: arithmetic-cube
 dev_install_url: "git+https://github.com/The-AI-Alliance/cube-harness#subdirectory=cubes/arithmetic-cube"
 
 authors:
-  - github: NicolasAG
-    name: Nicolas Gontier
+- github: NicolasAG
+  name: Nicolas Gontier
 
 legal:
   wrapper_license: MIT
@@ -25,3 +25,11 @@ parallelization_mode: task-parallel
 status: active
 has_debug_task: true
 has_debug_agent: true
+resources: []
+task_count: 4
+action_space: []
+features:
+  async: false
+  streaming: false
+  multi_agent: false
+  multi_dim_reward: false

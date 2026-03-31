@@ -109,7 +109,7 @@
     </div>
     <div class="bg-white rounded-lg border border-gray-200 p-4 text-center">
       <div class="text-2xl font-bold text-indigo-700">
-        {{ (entry.get('supported_infra') or ['aws']) | join(', ') }}
+        {% if entry.get('supported_infra') %}{{ entry.supported_infra | join(', ') }}{% else %}local{% endif %}
       </div>
       <div class="text-xs text-gray-500 mt-1">Infra</div>
     </div>

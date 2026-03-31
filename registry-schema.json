@@ -137,7 +137,7 @@
     },
     "supported_infra": {
       "type": "array",
-      "description": "Cloud providers the slow check should run on. Defaults to [aws] if not specified.",
+      "description": "For VM-based cubes only: cloud providers where the slow check is configured to run. Omit for cubes that run locally or in Docker (no cloud infra needed). Only set this once you have verified the cube works on the given provider.",
       "items": {
         "type": "string",
         "enum": ["aws", "azure", "gcp", "local"]

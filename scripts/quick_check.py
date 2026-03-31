@@ -107,43 +107,84 @@ def pip_install_package(package: str, version: str, dev_install_url: str | None 
 
 def find_benchmark_class(package: str) -> tuple[Any, str]:
     """
-    Import the package and find a class named Benchmark.
+    Find the Benchmark class for *package*.
+
+    Resolution order:
+    1. ``cube.benchmarks`` entry point matching the package name (canonical CUBE mechanism).
+    2. A class literally named ``Benchmark`` exported at the package top level.
+
     Returns (BenchmarkClass, error_message). On error, BenchmarkClass is None.
     """
+    import importlib.metadata
+
+    # 1. Try the cube.benchmarks entry point (most reliable — avoids name guessing).
+    try:
+        eps = importlib.metadata.entry_points(group="cube.benchmarks")
+        matched = [ep for ep in eps if ep.name == package]
+        if matched:
+            try:
+                cls = matched[0].load()
+                print(f"  Resolved via entry point: {matched[0].value}")
+                return cls, ""
+            except Exception as e:
+                return None, f"Entry point '{matched[0].value}' failed to load: {e}"
+    except Exception as e:
+        print(f"  ::notice::Entry point lookup failed ({e}); falling back to import.")
+
+    # 2. Import the package module and look for a class named Benchmark.
     try:
         mod = importlib.import_module(package.replace("-", "_"))
     except ImportError as e:
         return None, f"Could not import package '{package}': {e}"
 
-    # Look for Benchmark class at top level or in common submodules
     benchmark_cls = getattr(mod, "Benchmark", None)
     if benchmark_cls is None:
-        # Try common submodule patterns
         for attr_name in dir(mod):
             attr = getattr(mod, attr_name, None)
-            if (
-                attr is not None
-                and inspect.isclass(attr)
-                and attr.__name__ == "Benchmark"
-            ):
+            if attr is not None and inspect.isclass(attr) and attr.__name__ == "Benchmark":
                 benchmark_cls = attr
                 break
 
     if benchmark_cls is None:
         return None, (
-            f"Package '{package}' does not export a 'Benchmark' class at the top level. "
-            f"Ensure your package's __init__.py exports 'Benchmark'."
+            f"Package '{package}' has no 'cube.benchmarks' entry point and does not export "
+            f"a class named 'Benchmark'. Register an entry point in pyproject.toml:\n"
+            f"  [project.entry-points.'cube.benchmarks']\n"
+            f"  {package} = \"your_module:YourBenchmark\""
         )
 
     return benchmark_cls, ""
 
 
-def introspect_benchmark(benchmark_cls: Any) -> dict[str, Any]:
+def _serialize_resource(r: Any) -> dict:
+    if hasattr(r, "model_dump"):
+        d = r.model_dump()
+    elif hasattr(r, "dict"):
+        d = r.dict()
+    else:
+        d = vars(r)
+    d["type"] = type(r).__name__
+    return d
+
+
+def introspect_benchmark(benchmark_cls: Any, package: str) -> dict[str, Any]:
     """
-    Introspect the Benchmark class to derive CI fields.
-    Returns a dict of CI-derived field values.
+    Introspect the Benchmark class and its package module to derive CI fields.
+
+    Follows the CUBE debug-module convention:
+      - task_count: via benchmark.get_task_configs() (not .tasks())
+      - has_debug_task: module exposes get_debug_benchmark()
+      - has_debug_agent: module exposes make_debug_agent()
+      - resources: benchmark.resources (present on VM/Docker benchmarks)
+      - features: introspected from the task class
     """
     derived: dict[str, Any] = {}
+
+    # Import the package module for debug-interface checks
+    try:
+        mod = importlib.import_module(package.replace("-", "_"))
+    except ImportError:
+        mod = None
 
     # Instantiate benchmark
     try:
@@ -151,50 +192,49 @@ def introspect_benchmark(benchmark_cls: Any) -> dict[str, Any]:
     except Exception as e:
         raise RuntimeError(f"Failed to instantiate Benchmark(): {e}") from e
 
-    # --- task_count ---
+    # --- task_count: use get_task_configs() (the real CUBE API) ---
+    task_cls = None
     try:
-        tasks = benchmark.tasks()
-        derived["task_count"] = len(tasks)
+        configs = list(benchmark.get_task_configs())
+        derived["task_count"] = len(configs)
+        if configs:
+            # Instantiate a task to detect features; don't actually spawn
+            task_cls = benchmark.task_config_class if hasattr(benchmark, "task_config_class") else None
+            # Try to get the task class from the config's make() result type annotation
+            if task_cls is None and hasattr(configs[0], "make"):
+                import typing
+                hints = typing.get_type_hints(configs[0].make) if hasattr(configs[0].make, "__annotations__") else {}
+                task_cls = hints.get("return")
         print(f"  task_count: {derived['task_count']}")
     except Exception as e:
-        print(f"  ::warning::Could not call benchmark.tasks(): {e}")
+        print(f"  ::warning::Could not call benchmark.get_task_configs(): {e}")
         derived["task_count"] = None
 
-    # --- has_debug_task ---
-    try:
-        debug_tasks = benchmark.debug_tasks() if hasattr(benchmark, "debug_tasks") else []
-        derived["has_debug_task"] = len(debug_tasks) > 0
-        print(f"  has_debug_task: {derived['has_debug_task']} ({len(debug_tasks)} debug tasks)")
-    except Exception as e:
-        print(f"  ::warning::Could not call benchmark.debug_tasks(): {e}")
-        derived["has_debug_task"] = False
+    # --- has_debug_task: module-level get_debug_benchmark() (CUBE debug convention) ---
+    has_debug_task = False
+    if mod is not None and callable(getattr(mod, "get_debug_benchmark", None)):
+        try:
+            debug_b = mod.get_debug_benchmark()
+            debug_configs = list(debug_b.get_task_configs())
+            has_debug_task = len(debug_configs) > 0
+            print(f"  has_debug_task: {has_debug_task} ({len(debug_configs)} debug task(s))")
+        except Exception as e:
+            print(f"  ::warning::get_debug_benchmark() failed: {e}")
+    else:
+        print(f"  has_debug_task: False (no get_debug_benchmark() in module)")
+    derived["has_debug_task"] = has_debug_task
 
-    # --- has_debug_agent ---
-    derived["has_debug_agent"] = hasattr(benchmark, "make_debug_agent") and callable(
-        getattr(benchmark, "make_debug_agent", None)
-    )
+    # --- has_debug_agent: module-level make_debug_agent() ---
+    derived["has_debug_agent"] = mod is not None and callable(getattr(mod, "make_debug_agent", None))
     print(f"  has_debug_agent: {derived['has_debug_agent']}")
 
-    # --- resources ---
+    # --- resources: present on VM/Docker benchmarks ---
     try:
         resources_list = benchmark.resources if hasattr(benchmark, "resources") else []
         if not isinstance(resources_list, list):
             resources_list = list(resources_list)
-        serialized_resources = []
-        for r in resources_list:
-            if hasattr(r, "model_dump"):
-                # Pydantic v2
-                d = r.model_dump()
-            elif hasattr(r, "dict"):
-                # Pydantic v1
-                d = r.dict()
-            else:
-                d = vars(r)
-            # Ensure type field reflects class name
-            d["type"] = type(r).__name__
-            serialized_resources.append(d)
-        derived["resources"] = serialized_resources
-        print(f"  resources: {len(serialized_resources)} resource(s)")
+        derived["resources"] = [_serialize_resource(r) for r in resources_list]
+        print(f"  resources: {len(derived['resources'])} resource(s)")
     except Exception as e:
         print(f"  ::warning::Could not introspect benchmark.resources: {e}")
         derived["resources"] = []
@@ -206,15 +246,6 @@ def introspect_benchmark(benchmark_cls: Any) -> dict[str, Any]:
         "multi_agent": False,
         "multi_dim_reward": False,
     }
-
-    # Detect async support by checking for overridden async methods
-    task_cls = None
-    try:
-        tasks = benchmark.tasks()
-        if tasks:
-            task_cls = type(tasks[0]) if tasks else None
-    except Exception:
-        pass
 
     if task_cls is not None:
         # Check for async_step / async_reset overrides
@@ -292,6 +323,8 @@ def write_derived_fields(entry_path: Path, entry: dict, derived: dict, pr_author
     yaml = YAML()
     yaml.preserve_quotes = True
     yaml.default_flow_style = False
+    yaml.best_sequence_indent = 2
+    yaml.best_sequence_dash_offset = 2
     yaml.width = 120
 
     with open(entry_path) as f:
@@ -307,17 +340,20 @@ def write_derived_fields(entry_path: Path, entry: dict, derived: dict, pr_author
         if derived.get(field) is not None:
             doc[field] = derived[field]
 
-    # verified_by_original_authors
+    # Cleanup: remove any benchmark_license block that has no 'reported' field
+    # (could have been written by an older version of this script).
+    legal = doc.get("legal")
+    if isinstance(legal, dict):
+        bench_lic = legal.get("benchmark_license")
+        if bench_lic is not None and not (bench_lic or {}).get("reported"):
+            del legal["benchmark_license"]
+
+    # verified_by_original_authors — only set when benchmark_license.reported already exists.
     known_authors = load_known_authors()
     verified = check_verified_by_original_authors(doc, pr_author, known_authors)
-    if "legal" in doc and "benchmark_license" in doc.get("legal", {}):
-        doc["legal"]["benchmark_license"]["verified_by_original_authors"] = verified
-    elif "legal" in doc:
-        if doc["legal"] is None:
-            doc["legal"] = {}
-        if "benchmark_license" not in doc["legal"]:
-            doc["legal"]["benchmark_license"] = {}
-        doc["legal"]["benchmark_license"]["verified_by_original_authors"] = verified
+    bench_lic = (doc.get("legal") or {}).get("benchmark_license")
+    if bench_lic and bench_lic.get("reported"):
+        bench_lic["verified_by_original_authors"] = verified
 
     with open(entry_path, "w") as f:
         yaml.dump(doc, f)
@@ -413,7 +449,7 @@ def main() -> None:
     # --- Step 4: Introspect benchmark ---
     print(f"\nStep 4: Introspect benchmark")
     try:
-        derived = introspect_benchmark(benchmark_cls)
+        derived = introspect_benchmark(benchmark_cls, package)
     except RuntimeError as e:
         print(f"::error file={entry_path}::Benchmark introspection failed: {e}")
         print(f"❌ Introspection FAILED: {e}")
