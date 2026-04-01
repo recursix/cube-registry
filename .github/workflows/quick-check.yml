@@ -87,14 +87,11 @@ jobs:
             echo "Checking: $entry_file"
             echo "=========================================="
 
-            # Run the actual package install + introspection inside a sandboxed
-            # Docker container with memory/CPU limits and no secrets injected.
-            # Network access is required for pip install; security boundary = no credentials.
-            # python:3.12-slim-git is python:3.12-slim with git pre-installed.
-            # Using a pre-built image avoids apt-get inside the sandbox
-            # (apt-get requires SETUID/SETGID which we want to drop).
-            # Security flags: pids-limit prevents fork bombs; cap-drop removes
-            # dangerous capabilities while keeping the minimum needed for pip.
+            # /derived is a writable host tmpdir mounted into the container.
+            # quick_check.py writes the updated entry YAML there after introspection.
+            # The workspace itself is mounted read-only — no credentials, no secrets.
+            DERIVED_DIR=$(mktemp -d)
+
             docker run --rm \
               --memory 2g \
               --cpus 2 \
@@ -104,6 +101,7 @@ jobs:
               --cap-drop SYS_ADMIN \
               --security-opt no-new-privileges \
               -v "$(pwd):/workspace:ro" \
+              -v "$DERIVED_DIR:/derived:rw" \
               python:3.12-slim \
               bash -c "
                 set -e
@@ -113,11 +111,54 @@ jobs:
                 cd /workspace-copy
                 python scripts/quick_check.py \
                   --entry '$entry_file' \
-                  --pr-author '$PR_AUTHOR'
-              " || FAILED=1
+                  --pr-author '$PR_AUTHOR' \
+                  --output-dir /derived
+              " || { FAILED=1; rm -rf "$DERIVED_DIR"; continue; }
+
+            # Copy the updated YAML (with CI-derived fields) back to the workspace.
+            ENTRY_BASENAME=$(basename "$entry_file")
+            if [ -f "$DERIVED_DIR/$ENTRY_BASENAME" ]; then
+              cp "$DERIVED_DIR/$ENTRY_BASENAME" "$entry_file"
+              echo "  Updated $entry_file with CI-derived fields"
+            fi
+            rm -rf "$DERIVED_DIR"
           done <<< "$ENTRIES"
 
           exit $FAILED
+
+      - name: Commit CI-derived fields back to PR branch
+        if: success()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Only commit if there are changes to the entry YAMLs.
+          if git diff --quiet -- entries/; then
+            echo "No CI-derived field changes to commit."
+            exit 0
+          fi
+
+          git config user.name  "cube-registry-bot"
+          git config user.email "cube-registry-bot@users.noreply.github.com"
+          git add entries/
+          git commit -m "ci: write back derived fields from quick-check [skip ci]"
+
+          # For same-repo PRs we can push directly to the head branch.
+          # For fork PRs GITHUB_TOKEN cannot push to the fork; post a comment instead.
+          HEAD_REPO="${{ github.event.pull_request.head.repo.full_name }}"
+          BASE_REPO="${{ github.repository }}"
+
+          if [ "$HEAD_REPO" = "$BASE_REPO" ]; then
+            git push origin HEAD:"${{ github.event.pull_request.head.ref }}"
+            echo "Pushed derived fields to PR branch."
+          else
+            # Fork PR — push the derived YAML as a patch comment so the author can apply it.
+            PATCH=$(git format-patch HEAD~1 --stdout | head -200)
+            gh pr comment "${{ github.event.pull_request.number }}" \
+              --repo "$BASE_REPO" \
+              --body "$(printf '## CI-derived fields\n\nQuick-check introspected your package and derived the following fields.\nBecause this is a fork PR, apply the patch below to your branch:\n\n```diff\n%s\n```' "$PATCH")"
+            # Revert so the base repo does not have a dangling commit.
+            git reset --hard HEAD~1
+          fi
 
   # ── Job 3: Request review when both checks pass ───────────────────────────
   # Security: auto-merge is disabled. A maintainer must approve before merging

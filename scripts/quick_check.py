@@ -22,6 +22,7 @@ import importlib
 import inspect
 import json
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -409,6 +410,12 @@ def main() -> None:
         action="store_true",
         help="Skip pip install (use already-installed package). Useful for testing.",
     )
+    parser.add_argument(
+        "--output-dir",
+        default=None,
+        metavar="PATH",
+        help="If set, copy the updated entry YAML here after write-back (used by CI to pass results out of Docker).",
+    )
     args = parser.parse_args()
 
     entry_path = Path(args.entry).resolve()
@@ -512,6 +519,14 @@ def main() -> None:
         print(f"::error::Failed to write derived fields: {e}")
         print(f"❌ Write-back FAILED: {e}")
         sys.exit(1)
+
+    # Copy the updated YAML to --output-dir so the host runner (outside Docker)
+    # can pick it up and commit it back to the PR branch.
+    if args.output_dir:
+        out_dir = Path(args.output_dir)
+        out_dir.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(entry_path, out_dir / entry_path.name)
+        print(f"  Copied updated YAML to {out_dir / entry_path.name}")
 
     print()
     print("✅ Quick check PASSED.")
