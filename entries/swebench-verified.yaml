@@ -1,0 +1,31 @@
+id: swebench-verified
+name: "SWE-bench Verified"
+version: "0.1.0"
+description: >
+  SWE-bench Verified — 500 real-world GitHub issues with human-verified
+  test-based validation. Each task provides a Docker container with the
+  repo at the buggy commit and requires the agent to produce a patch
+  that passes the test suite.
+package: swebench-verified-cube
+dev_install_url: "git+https://github.com/The-AI-Alliance/cube-harness#subdirectory=cubes/swebench-verified-cube"
+
+authors:
+  - github: josancamon19
+    name: Joan Cabezas
+  - github: NicolasAG
+    name: Nicolas Gontier
+
+legal:
+  wrapper_license: MIT
+  benchmark_license:
+    reported: MIT
+    source_url: "https://github.com/princeton-nlp/SWE-bench/blob/main/LICENSE"
+
+tags:
+  - coding
+  - swe
+  - docker
+
+paper: "https://arxiv.org/abs/2310.06770"
+getting_started_url: "https://www.swebench.com"
+parallelization_mode: task-parallel
