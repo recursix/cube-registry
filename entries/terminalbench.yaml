@@ -1,0 +1,26 @@
+id: terminalbench
+name: "TerminalBench"
+version: "0.1.0"
+description: >
+  TerminalBench — real-world terminal tasks (compile, debug, deploy) with
+  pytest-based validation. Each task provides a Docker container with the
+  project pre-loaded and a solution script for oracle mode.
+package: terminalbench-cube
+dev_install_url: "git+https://github.com/The-AI-Alliance/cube-harness#subdirectory=cubes/terminalbench-cube"
+
+authors:
+  - github: josancamon19
+    name: Joan Cabezas
+  - github: NicolasAG
+    name: Nicolas Gontier
+
+legal:
+  wrapper_license: MIT
+
+tags:
+  - coding
+  - terminal
+  - swe
+  - docker
+
+parallelization_mode: task-parallel
